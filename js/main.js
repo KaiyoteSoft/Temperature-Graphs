@@ -11,12 +11,33 @@ var g = d3.select("#chart-area")
 	.append("g")
 		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// LOADING THE DATA
-d3.csv("NAPL_bottomTemperature/2018/NAP_1_V2.csv").then(function(data){
-    data.forEach(function(i){
-        i.Temp = +i.Temp        
-    })
-    console.log(data);
+// Scale for label axis, only includes months
+var x = d3.scaleBand()
+	.range([0,width])
+	.paddingInner(0.2);
+
+// Scale for data axis. Includes every day
+var x2 = d3.scaleBand()
+	.range([0,width])
+	.paddingInner(0.1);
+
+var y = d3.scaleLinear()
+	.range([height, 0]);
+
+
+var xAxisCall = d3.axisBottom(x);
+var xAxisGroup = g.append("g")
+		.attr("class", "x axis-label")
+		.attr("transform", "translate(0,"+height+")")
+
+
+var yAxisCall = d3.axisLeft(y)
+	.ticks(5)
+	.tickFormat(function(d){
+		return d + "°C"
+	})
+var yAxisGroup = g.append("g")
+		.attr("class", "y axis-label")
 
 //X axis label for month
 g.append("text")
@@ -38,69 +59,75 @@ g.append("text")
 	.text("Temperature (°C)");
 
 //Title of the graph
-g.append("text")
+var title = g.append("text")
 	.attr("class", "x axis-label")
 	.attr("x", width/2)
 	.attr("y", 0)
 	.attr("text-anchor", "middle")
 	.attr("font-size", "40px")
-	.text("Naples Bottom Temperature 2018");
 
-// Scale for label axis, only includes months
-    var x = d3.scaleBand()
-		.domain(data.map(function(d){
-			return d.Month;
-		}))
-    	.range([0,width])
-    	.paddingInner(0.2);
+var year = 2011;
 
-// Scale for data axis. Includes every day
-    var x2 = d3.scaleBand()
-    	.domain(data.map(function(d){
-    		return d.generalDay;
-    	}))
-    	.range([0,width])
-    	.paddingInner(0.1);
+// LOADING THE DATA
+d3.csv("NAPL_bottomTemperature/2018/NAPL_2010_2018.csv").then(function(data){
+    data.forEach(function(i){
+        i.Temp = +i.Temp        
+        i.Time = parseInt(i.Time)
+    })
+    const formattedData = data.filter(function(d) {
+    	return d.Time > year;
+    })
+    console.log(formattedData);
+    // console.log(formattedData[1].Time)
 
-    var y = d3.scaleLinear()
-    	.domain([0, d3.max(data, function(d){ return d.Temp; })])
-    	.range([height, 0]);
+	d3.interval(function(){
+		// year = (year<2015) ? year+7 : year=2010
+		// console.log(year)
+		// update(formattedData)
+	}, 2000)
 
+	update(formattedData);
+})
 
-	var xAxisCall = d3.axisBottom(x)
-		// .ticks(5);
-		g.append("g")
-			.attr("class", "x axis-label")
-			.attr("transform", "translate(0,"+height+")")
-			.call(xAxisCall)
+function update(data){
+//Updating the domains for the different axis
+    // const data = data2.filter(function(d) {
+    // 	return d.Time < year;
+    // })
+    // console.log(data)
+	x2.domain(data.map(function(d){
+		return d.generalDay;
+	}))
+	y.domain([0, d3.max(data, function(d){ return d.Temp; })])
+	x.domain(data.map(function(d){
+		return d.Month;
+	}))
+	title.text("Naples Bottom Temperature "+data[0].Time+"-"+data[6000].Time);
 
-
-	var yAxisCall = d3.axisLeft(y)
-		.ticks(5)
-		.tickFormat(function(d){
-			return d + "°C"
-		})
-		g.append("g")
-			.attr("class", "y axis-label")
-			.call(yAxisCall);
+//Calling the axis 
+	yAxisGroup.call(yAxisCall)
+	xAxisGroup.call(xAxisCall)
 
 	var rects = g.selectAll("rect")
 		.data(data)
+
+	rects.exit().remove();
+
 	rects.enter()
 		.append("rect")
-			.attr("y", function(d){
-				return y(d.Temp);
-			})
-// Note that the x position of the rectangle makes use of x2 (the data axis)
-			.attr("x", function(d, i){
-				return x2(d.generalDay);
-			})
-			.attr("width", x2.bandwidth)
-			.attr("height", function(d){
-				return  height - y(d.Temp);
-			})
 			.attr("fill", function(d){
-				return "blue";
+			return "blue";
 			})
-
-})
+			.merge(rects)
+				.attr("y", function(d){
+					return y(d.Temp);
+				})
+	// Note that the x position of the rectangle makes use of x2 (the data axis)
+				.attr("x", function(d, i){
+					return x2(d.generalDay);
+				})
+				.attr("width", x2.bandwidth)
+				.attr("height", function(d){
+					return  height - y(d.Temp);
+				})
+}
