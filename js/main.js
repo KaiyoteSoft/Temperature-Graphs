@@ -75,15 +75,19 @@ d3.csv("NAPL_bottomTemperature/2018/NAPL_2010_2018.csv").then(function(data){
         i.Time = parseInt(i.Time)
     })
     const formattedData = data.filter(function(d) {
-    	return d.Time > year;
+    	return d.Time < year;
     })
-    console.log(formattedData);
+    // console.log(formattedData)
+    // console.log(formattedData);
     // console.log(formattedData[1].Time)
 
 	d3.interval(function(){
-		// year = (year<2015) ? year+7 : year=2010
+		year = (year<2015) ? year+8 : year-8
+	    const formattedData = data.filter(function(d) {
+	    	return d.Time < year;
+	    })		
 		// console.log(year)
-		// update(formattedData)
+		update(formattedData)
 	}, 2000)
 
 	update(formattedData);
@@ -94,7 +98,7 @@ function update(data){
     // const data = data2.filter(function(d) {
     // 	return d.Time < year;
     // })
-    // console.log(data)
+    console.log(data)
 	x2.domain(data.map(function(d){
 		return d.generalDay;
 	}))
