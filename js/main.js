@@ -26,6 +26,10 @@ var y = d3.scaleLinear()
 // y.domain([0, d3.max(data, function(d){ return d.Temp; })])
 y.domain([0, 30])
 
+var dataFill = d3.scaleLinear()
+	.range(["#fef0d9", "#fc8d59", "#b30000"]);
+	// .range(["blue", "green"])
+
 var xAxisGroup = g.append("g")
 		.attr("class", "x axis-label")
 		.attr("transform", "translate(0,"+height+")")
@@ -118,14 +122,14 @@ d3.csv("NAPL_bottomTemperature/2018/NAPL_2010_2018.csv").then(function(data){
 
 
 		update(reducedData)
-	}, 1000)
+	}, 2000)
 
 	update(reducedData);
 })
 
 function update(data){
 //Updating the domains for the different axis
-    // console.log(data)
+	dataFill.domain([0, d3.max(data, function(d){ return d.Temp; })])
 	x2.domain(data.map(function(d){
 		return d.generalDay;
 	}))
@@ -155,7 +159,9 @@ function update(data){
 
 	rects.enter()
 		.append("rect")
-			.attr("fill", "blue")
+			.attr("fill", function(d){
+				return dataFill(d.Temp);
+			})
 			.attr("y", y(0))
 			.attr("height", 0)
 			.attr("width", x2.bandwidth)
