@@ -90,7 +90,7 @@ d3.csv("NAPL_bottomTemperature/2018/NAPL_2010_2018.csv").then(function(data){
 
 
 		update(formattedData)
-	}, 10000)
+	}, 5000)
 
 	update(formattedData);
 })
