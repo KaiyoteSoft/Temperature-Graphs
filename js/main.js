@@ -24,18 +24,11 @@ var x2 = d3.scaleBand()
 var y = d3.scaleLinear()
 	.range([height, 0]);
 
-
-var xAxisCall = d3.axisBottom(x);
 var xAxisGroup = g.append("g")
 		.attr("class", "x axis-label")
 		.attr("transform", "translate(0,"+height+")")
 
 
-var yAxisCall = d3.axisLeft(y)
-	.ticks(5)
-	.tickFormat(function(d){
-		return d + "°C"
-	})
 var yAxisGroup = g.append("g")
 		.attr("class", "y axis-label")
 
@@ -66,7 +59,8 @@ var title = g.append("text")
 	.attr("text-anchor", "middle")
 	.attr("font-size", "40px")
 
-var year = 2011;
+var year = 2010;
+var t = d3.transition().duration(3000)
 
 // LOADING THE DATA
 d3.csv("NAPL_bottomTemperature/2018/NAPL_2010_2018.csv").then(function(data){
@@ -75,29 +69,34 @@ d3.csv("NAPL_bottomTemperature/2018/NAPL_2010_2018.csv").then(function(data){
         i.Time = parseInt(i.Time)
     })
     const formattedData = data.filter(function(d) {
-    	return d.Time < year;
+    	return d.Time == year;
     })
-    // console.log(formattedData)
-    // console.log(formattedData);
-    // console.log(formattedData[1].Time)
+    console.log(formattedData)
 
 	d3.interval(function(){
-		year = (year<2015) ? year+8 : year-8
+		// year = (year<2015) ? year+8 : year-8
+		 if (year < 2018) {
+		 	year = year + 8;
+			console.log(year)
+		 }	
+		 else {
+		 	year = 2010
+		 	console.log(year)
+		 }
 	    const formattedData = data.filter(function(d) {
-	    	return d.Time < year;
-	    })		
-		// console.log(year)
+	    	return d.Time == year;
+	    })
+	    	console.log(formattedData)
+
+
 		update(formattedData)
-	}, 2000)
+	}, 10000)
 
 	update(formattedData);
 })
 
 function update(data){
 //Updating the domains for the different axis
-    // const data = data2.filter(function(d) {
-    // 	return d.Time < year;
-    // })
     console.log(data)
 	x2.domain(data.map(function(d){
 		return d.generalDay;
@@ -106,32 +105,43 @@ function update(data){
 	x.domain(data.map(function(d){
 		return d.Month;
 	}))
-	title.text("Naples Bottom Temperature "+data[0].Time+"-"+data[6000].Time);
+	title.text("Naples Bottom Temperature "+data[0].Time);
 
+	var xAxisCall = d3.axisBottom(x);
+	var yAxisCall = d3.axisLeft(y)
+		.ticks(5)
+		.tickFormat(function(d){
+			return d + "°C"
+		});
 //Calling the axis 
-	yAxisGroup.call(yAxisCall)
-	xAxisGroup.call(xAxisCall)
+	yAxisGroup.transition(t).call(yAxisCall)
+	xAxisGroup.transition(t).call(xAxisCall)
 
 	var rects = g.selectAll("rect")
-		.data(data)
+		.data(data, function(d){
+			return d.generalDay;
+		});
 
-	rects.exit().remove();
+    // EXIT old elements not present in new data.
+    rects.exit()
+        // .attr("fill", "red")
+    .transition(t)
+        .attr("y", y(0))
+        .attr("height", 0)
+        .remove();
 
 	rects.enter()
 		.append("rect")
-			.attr("fill", function(d){
-			return "blue";
-			})
+			.attr("fill", "blue")
+			.attr("y", y(0))
+			.attr("height", 0)
+			.attr("width", x2.bandwidth)
+			.attr("x", function(d){ return x2(d.generalDay); })
 			.merge(rects)
-				.attr("y", function(d){
-					return y(d.Temp);
-				})
+			.transition(t)
+				.attr("y", function(d){ return y(d.Temp); })
 	// Note that the x position of the rectangle makes use of x2 (the data axis)
-				.attr("x", function(d, i){
-					return x2(d.generalDay);
-				})
+				.attr("x", function(d, i){ return x2(d.generalDay); })
 				.attr("width", x2.bandwidth)
-				.attr("height", function(d){
-					return  height - y(d.Temp);
-				})
+				.attr("height", function(d){ return  height - y(d.Temp); });
 }
