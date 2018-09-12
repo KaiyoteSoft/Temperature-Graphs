@@ -12,12 +12,12 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body data-spy="scroll" data-target=".navbar" data-offset="100">
+<body data-spy="scroll" data-target=".navbar" data-offset="100" onload="createMargins();">
     <nav class="navbar navbar-default">
         <div class="container">
-            <a class="navbar-brand" href="#"><img id="logo" src="img/sbcLogoSmall.png"></a>    
+            <a class="navbar-brand" href="#"><img id="logo" src="img/sbcLogoSmall.png"></a> 
             <ul></ul>
-            <a id="generalLink" href="generalOverview.html">General Overview</a>  
+            <a id="monthlyLink" href="index.html">Monthly Overview</a>  
         </div>
     </nav>
 
@@ -25,12 +25,12 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
-            <div id="chart-area"></div>
+            <div id="allChart"></div>
         </div>
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <div id="allChart">
+            <div>
                 <text></text>
             </div>  
         </div>
@@ -40,8 +40,8 @@
 <!-- External JS libraries -->
 <script src="js/d3.min.js"></script>
 <!-- Custom JS -->
-<script src="js/main.js"></script>
-<!-- <script src="js/generalGraph.js"></script> -->
+<!-- <script src="js/main.js"></script> -->
+<script src="js/generalGraph.js"></script>
 
 </body>
 </html>

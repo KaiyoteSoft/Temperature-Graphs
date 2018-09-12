@@ -118,7 +118,7 @@ d3.csv("NAPL_bottomTemperature/2018/NAPL_2010_2018.csv").then(function(data){
 	    const reducedData = formattedData.filter(function(d){
 	    	return d.Month == month;
 	    })
-	    	console.log(reducedData)
+	    	// console.log(reducedData)
 
 
 		update(reducedData)
