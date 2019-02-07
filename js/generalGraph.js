@@ -25,7 +25,7 @@ function createMargins(){
 	var y = d3.scaleLinear()
 		.range([height, 0]);
 	// y.domain([0, d3.max(data, function(d){ return d.Temp; })])
-	y.domain([0, 23])
+	y.domain([10, 23])
 
 	var dataFill = d3.scaleLinear()
 		.range(["#fef0d9", "#fc8d59", "#b30000"]);
@@ -41,7 +41,7 @@ function createMargins(){
 
 	var yAxisCall = d3.axisLeft(y)
 		// .ticks(5)
-		.tickFormat(0,5,10,15,20,22)
+		.tickFormat(10,12,14,16,18,20,22)
 		.tickFormat(function(d){
 			return d + "°C"
 		});
